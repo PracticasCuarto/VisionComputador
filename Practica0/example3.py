@@ -3,7 +3,6 @@ import cv2 # Import python-supported OpenCV functions
 import numpy as np # Import numpy and call it np
 from matplotlib import pyplot as plt # Import pyplot and call it plt
 
-
 def show_image_properties(my_img):
     cv2.namedWindow( 'Example1', cv2.WINDOW_AUTOSIZE )
     cv2.imshow('Example1',my_img)
