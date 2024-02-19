@@ -112,37 +112,37 @@ def equalizeHist(image):
 
     return equalized_image
 
-def aplicar_efectos(frame, filtro):
+def aplicar_efectos(image, filtro):
     if filtro == 'contraste':
         # HACER NOSOTROS
         # Efecto de mejora del contraste
         alpha = 1.5  # Factor de aumento de contraste
         beta = 30    # Desplazamiento
-        frame = cv2.convertScaleAbs(frame, alpha=alpha, beta=beta)
+        frame = cv2.convertScaleAbs(image, alpha=alpha, beta=beta)
 
-        frame_gris = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        frame = equalizeHist(frame_gris)
-        frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
+        frame_gris = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        image = equalizeHist(frame_gris)
+        image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
     elif filtro == 'alien':
         # Filtro Alien: Cambiar el color de la piel a verde
-        frame_hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+        frame_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
         lower_skin = np.array([0, 20, 70], dtype=np.uint8)
         upper_skin = np.array([20, 255, 255], dtype=np.uint8)
         mask = cv2.inRange(frame_hsv, lower_skin, upper_skin)
-        frame[mask > 0] = [0, 255, 0]  # Cambiar a color verde
+        image[mask > 0] = [0, 255, 0]  # Cambiar a color verde
     elif filtro == 'poster':
         # Filtro Póster: Reducir el número de colores
         num_colores = 8
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        frame = (frame // (256 // num_colores)) * (256 // num_colores)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        image = (image // (256 // num_colores)) * (256 // num_colores)
     elif filtro == 'distorsion':
-        nuevo_frame_y = np.zeros(frame.shape[:2], dtype=np.float32)
-        nuevo_frame_x = np.zeros(frame.shape[:2], dtype=np.float32)
+        nuevo_frame_y = np.zeros(image.shape[:2], dtype=np.float32)
+        nuevo_frame_x = np.zeros(image.shape[:2], dtype=np.float32)
 
-        # k1, k2 = 0.001, 0.00001  # Coeficientes de distorsión radial
+        # k1, k2 = 0.001, 0.00001  # Coeficient
         k1, k2 = -0.01, -0.001  # Coeficientes de distorsión radial
 
-        alto, ancho = frame.shape[:2]
+        alto, ancho = image.shape[:2]
 
         # Calcular el centro de la imagen
         centro_y = alto / 2
@@ -168,46 +168,36 @@ def aplicar_efectos(frame, filtro):
                 nuevo_frame_x[y, x] = nuevo_x
 
         # Aplicar la distorsión a la imagen usando remap
-        frame = cv2.remap(frame, nuevo_frame_x, nuevo_frame_y, cv2.INTER_LINEAR)
+        image = cv2.remap(image, nuevo_frame_x, nuevo_frame_y, cv2.INTER_LINEAR)
 
     elif filtro == 'blur':
         # Filtro de desenfoque
-        frame = gaussian_blur(frame, 15, 0.1)
-    return frame
-def main():
-    # Argumentos de línea de comandos
-    parser = argparse.ArgumentParser(description='Aplicar efectos a una transmisión de cámara en vivo.')
-    parser.add_argument('--filtro', type=str, default='contraste', choices=['contraste', 'ecualizacion', 'alien', 'poster', 'distorsion', 'blur'],
-                        help='Elegir el filtro a aplicar (contraste, ecualizacion, alien, poster, distorsion, blur)')
-    args = parser.parse_args()
+        image = gaussian_blur(image, 31, 0.5)
+    return image
 
-    # Inicializar la cámara
-    captura = cv2.VideoCapture(0)
+def main(image_path, filtro):
+    # Leer la imagen desde la ruta proporcionada
+    image = cv2.imread(image_path)
 
-    if not captura.isOpened():
-        print("Error al abrir la cámara.")
-        exit()
+    if image is None:
+        print("No se pudo leer la imagen.")
+        return
 
-    while True:
-        ret, frame = captura.read()
+    # Aplicar efectos
+    image_efecto = aplicar_efectos(image, filtro)
 
-        if not ret:
-            print("Error al capturar el frame.")
-            break
-
-        # Aplicar efectos
-        frame_efecto = aplicar_efectos(frame, args.filtro)
-
-        # Mostrar el resultado en pantalla
-        cv2.imshow('Filtro ' + args.filtro.capitalize(), frame_efecto)
-
-        # Salir del bucle si se presiona la tecla 'q'
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-
-    # Liberar la cámara y cerrar las ventanas
-    captura.release()
+    # Mostrar el resultado en pantalla
+    cv2.imshow('Filtro ' + filtro.capitalize(), image_efecto)
+    cv2.waitKey(0)
     cv2.destroyAllWindows()
 
 if __name__ == "__main__":
-    main()
+    # Argumentos de línea de comandos
+    parser = argparse.ArgumentParser(description='Aplicar efectos a una imagen.')
+    parser.add_argument('image_path', type=str, help='Ruta de la imagen a procesar.')
+    parser.add_argument('--efecto', type=str, default='contraste', choices=['contraste', 'ecualizacion', 'alien', 'poster', 'distorsion', 'blur'],
+                        help='Elegir el efecto a aplicar (contraste, ecualizacion, alien, poster, distorsion, blur)')
+    args = parser.parse_args()
+
+    # Llamar a la función main con los argumentos proporcionados
+    main(args.image_path, args.efecto)
