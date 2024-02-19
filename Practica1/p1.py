@@ -1,42 +1,6 @@
 import cv2
 import numpy as np
 import argparse
-import concurrent.futures
-
-def calcHistHilos(image):
-    # Convertir la imagen a escala de grises si es necesario
-    if len(image.shape) > 2:
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    else:
-        gray = image.copy()
-
-    # Inicializar el histograma con ceros
-    hist = np.zeros(256, dtype=int)
-
-    # Función para contar la ocurrencia de píxeles en una subsección de la imagen
-    def count_pixels(start, end):
-        local_hist = np.zeros(256, dtype=int)
-        for pixel in np.nditer(gray[start:end]):
-            local_hist[pixel] += 1
-        return local_hist
-
-    # Definir el número de hilos a utilizar (puedes ajustar este valor según tu CPU)
-    num_threads = 7  # Por ejemplo, usar 4 hilos
-
-    # Dividir la imagen en secciones para que cada hilo procese una parte
-    section_size = len(gray) // num_threads
-    sections = [(i * section_size, (i + 1) * section_size) for i in range(num_threads - 1)]
-    sections.append(((num_threads - 1) * section_size, len(gray)))
-
-    # Utilizar hilos para calcular el histograma de forma concurrente
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        futures = [executor.submit(count_pixels, start, end) for start, end in sections]
-
-        # Combinar los resultados de los hilos en un único histograma
-        for future in concurrent.futures.as_completed(futures):
-            hist += future.result()
-
-    return hist
 
 def calcHist(image):
     # Convertir la imagen a escala de grises si es necesario
@@ -62,7 +26,8 @@ def equalizeHist(image):
         gray = image.copy()
 
     # Calcular el histograma de la imagen en escala de grises
-    hist = calcHistHilos(gray)
+    # Nota: Hemos utilizado el histograma que ofrece openvc en vez de el nuestro por eficiencia, pero el nuestro funciona igual    
+    hist = cv2.calcHist([gray], [0], None, [256], [0,256])
 
     # Calcular el histograma acumulativo
     cumulative_hist = hist.cumsum()
@@ -92,7 +57,7 @@ def aplicar_efectos(frame, filtro):
         lower_skin = np.array([0, 20, 70], dtype=np.uint8)
         upper_skin = np.array([20, 255, 255], dtype=np.uint8)
         mask = cv2.inRange(frame_hsv, lower_skin, upper_skin)
-        frame[mask > 0] = [0, 255, 0]  # Cambiar a color verde
+        frame[mask > 0] = [0, 0, 255]  # Cambiar a color verde
     elif filtro == 'poster':
         # Filtro Póster: Reducir el número de colores
         num_colores = 8
