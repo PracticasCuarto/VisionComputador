@@ -90,6 +90,18 @@ def calcHist(image):
 
     return hist
 
+def manual_convertScaleAbs(image, alpha, beta):
+    # Aplicar la transformación lineal: multiplicación por alpha y suma de beta
+    transformed_image = image.astype(float) * alpha + beta
+    
+    # Asegurar que los valores de píxeles estén dentro del rango correcto (0 a 255)
+    transformed_image = np.clip(transformed_image, 0, 255)
+    
+    # Convertir los valores de píxeles a enteros sin signo de 8 bits
+    transformed_image = transformed_image.astype(np.uint8)
+    
+    return transformed_image
+
 def equalizeHist(image):
     # Convertir la imagen a escala de grises si es necesario
     if len(image.shape) > 2:
@@ -139,8 +151,8 @@ def aplicar_efectos(frame, filtro):
         nuevo_frame_y = np.zeros(frame.shape[:2], dtype=np.float32)
         nuevo_frame_x = np.zeros(frame.shape[:2], dtype=np.float32)
 
-        # k1, k2 = 0.001, 0.00001  # Coeficientes de distorsión radial
-        k1, k2 = -0.01, -0.001  # Coeficientes de distorsión radial
+        k1, k2 = 0.001, 0.00001  # Coeficientes de distorsión radial
+        # k1, k2 = -0.01, -0.001  # Coeficientes de distorsión radial
 
         alto, ancho = frame.shape[:2]
 

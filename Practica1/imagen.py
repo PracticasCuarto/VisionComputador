@@ -1,3 +1,6 @@
+# Ejecutar por ejemplo como: 
+#     $python3 imagen.py --image_path Mari.jpeg --efecto contraste --save
+
 import cv2
 import numpy as np
 import argparse
@@ -139,8 +142,8 @@ def aplicar_efectos(image, filtro):
         nuevo_frame_y = np.zeros(image.shape[:2], dtype=np.float32)
         nuevo_frame_x = np.zeros(image.shape[:2], dtype=np.float32)
 
-        # k1, k2 = 0.001, 0.00001  # Coeficient
-        k1, k2 = -0.01, -0.001  # Coeficientes de distorsión radial
+        k1, k2 = 0.001, 0.00001  # Coeficient
+        # k1, k2 = -0.01, -0.001  # Coeficientes de distorsión radial
 
         alto, ancho = image.shape[:2]
 
@@ -191,13 +194,29 @@ def main(image_path, filtro):
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
+    return image_efecto
+
 if __name__ == "__main__":
     # Argumentos de línea de comandos
     parser = argparse.ArgumentParser(description='Aplicar efectos a una imagen.')
-    parser.add_argument('image_path', type=str, help='Ruta de la imagen a procesar.')
+    parser.add_argument('--image_path', type=str, help='Ruta de la imagen a procesar.')
     parser.add_argument('--efecto', type=str, default='contraste', choices=['contraste', 'ecualizacion', 'alien', 'poster', 'distorsion', 'blur'],
                         help='Elegir el efecto a aplicar (contraste, ecualizacion, alien, poster, distorsion, blur)')
+    parser.add_argument('--save', action='store_true', help='Guardar la imagen resultante')
     args = parser.parse_args()
 
+    output_image_path = None  # Inicializa la variable para guardar la ruta de la imagen de salida
+    if args.save:
+        # Construir el nombre de archivo para guardar la imagen resultante
+        filename_parts = args.image_path.split('.')
+        output_image_path = f"{filename_parts[0]}_{args.efecto}.{filename_parts[-1]}"
+
+
     # Llamar a la función main con los argumentos proporcionados
-    main(args.image_path, args.efecto)
+
+    processed_image = main(args.image_path, args.efecto)  # Obtener la imagen procesada desde la función main
+
+    if args.save and output_image_path:
+        # Guardar la imagen procesada si la opción --save está activada y se proporcionó una ruta de salida
+        cv2.imwrite(output_image_path, processed_image)
+        print(f"Imagen guardada como {output_image_path}")
