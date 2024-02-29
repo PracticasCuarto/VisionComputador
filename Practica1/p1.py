@@ -151,8 +151,8 @@ def aplicar_efectos(frame, filtro):
         nuevo_frame_y = np.zeros(frame.shape[:2], dtype=np.float32)
         nuevo_frame_x = np.zeros(frame.shape[:2], dtype=np.float32)
 
-        k1, k2 = 0.001, 0.00001  # Coeficientes de distorsión radial
-        # k1, k2 = -0.01, -0.001  # Coeficientes de distorsión radial
+        # k1, k2 = 0.001, 0.00001  # Coeficientes de distorsión radial
+        k1, k2 = -0.001, -0.00001  # Coeficientes de distorsión radial
 
         alto, ancho = frame.shape[:2]
 
