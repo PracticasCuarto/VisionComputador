@@ -150,12 +150,11 @@ def aplicar_efectos(frame, filtro):
         num_colores = 8
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         frame = (frame // (256 // num_colores)) * (256 // num_colores)
-    elif filtro == 'distorsion':
-        nuevo_frame_y = np.zeros(frame.shape[:2], dtype=np.float32)
-        nuevo_frame_x = np.zeros(frame.shape[:2], dtype=np.float32)
-
-        # k1, k2 = 0.001, 0.00001  # Coeficientes de distorsión radial
-        k1, k2 = 0.001, 0.00001  # Coeficientes de distorsión radial
+    elif filtro == 'barril' or filtro == 'cojin':
+        k1, k2 = 0.1, 0.1  # Coeficientes de distorsión
+        
+        if filtro == 'cojin':
+            k1, k2 = -k1, -k2
 
         alto, ancho = frame.shape[:2]
 
@@ -163,27 +162,28 @@ def aplicar_efectos(frame, filtro):
         centro_y = alto / 2
         centro_x = ancho / 2
 
-        # Recorrer cada píxel de la imagen
-        for y in range(alto):
-            for x in range(ancho):
-                # Calcular las coordenadas polares relativas al centro
-                dx = x - centro_x
-                dy = y - centro_y
-                r = np.sqrt(dx**2 + dy**2)
+        # Generar un array con las coordenadas de los píxeles
+        x, y = np.meshgrid(np.arange(ancho), np.arange(alto))
 
-                # Aplicar la distorsión radial
-                nuevo_r = r * (1 + k1 * r**2 + k2 * r**4)
+        # Transformar a float
+        x = x.astype(np.float32)
+        y = y.astype(np.float32)
 
-                # Calcular las nuevas coordenadas
-                nuevo_x = centro_x + dx * nuevo_r / r
-                nuevo_y = centro_y + dy * nuevo_r / r
+        # Normalizar
+        x_normalizada = (x - centro_x) / centro_x
+        y_normalizada = (y - centro_y) / centro_y
 
-                # Asignar las nuevas coordenadas al array
-                nuevo_frame_y[y, x] = nuevo_y
-                nuevo_frame_x[y, x] = nuevo_x
+        r = x_normalizada**2 + y_normalizada**2
+
+        x_distorsion = x_normalizada * (1 + k1 * r + k2 * r**2)
+        y_distorsion = y_normalizada * (1 + k1 * r + k2 * r**2)
+
+        # Deshacer la normalización
+        x_distorsion = (x_distorsion * centro_x) + centro_x
+        y_distorsion = (y_distorsion * centro_y) + centro_y
 
         # Aplicar la distorsión a la imagen usando remap
-        frame = cv2.remap(frame, nuevo_frame_x, nuevo_frame_y, cv2.INTER_LINEAR)
+        frame = cv2.remap(frame, x_distorsion, y_distorsion, cv2.INTER_LINEAR)
 
     elif filtro == 'blur':
         # Filtro de desenfoque
@@ -192,8 +192,8 @@ def aplicar_efectos(frame, filtro):
 def main():
     # Argumentos de línea de comandos
     parser = argparse.ArgumentParser(description='Aplicar efectos a una transmisión de cámara en vivo.')
-    parser.add_argument('--filtro', type=str, default='contraste', choices=['contraste', 'ecualizacion', 'alien', 'poster', 'distorsion', 'blur'],
-                        help='Elegir el filtro a aplicar (contraste, ecualizacion, alien, poster, distorsion, blur)')
+    parser.add_argument('--filtro', type=str, default='contraste', choices=['contraste', 'ecualizacion', 'alien', 'poster', 'barril', 'cojin', 'blur'],
+                        help='Elegir el filtro a aplicar (contraste, ecualizacion, alien, poster, barril, cojin, blur)')
     args = parser.parse_args()
 
     # Inicializar la cámara
