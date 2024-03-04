@@ -1,3 +1,6 @@
+# Ejecutar por ejemplo como: 
+#     $python3 p1.py --filtro contraste
+
 import cv2
 import numpy as np
 import argparse
@@ -152,7 +155,7 @@ def aplicar_efectos(frame, filtro):
         nuevo_frame_x = np.zeros(frame.shape[:2], dtype=np.float32)
 
         # k1, k2 = 0.001, 0.00001  # Coeficientes de distorsión radial
-        k1, k2 = -0.001, -0.00001  # Coeficientes de distorsión radial
+        k1, k2 = 0.001, 0.00001  # Coeficientes de distorsión radial
 
         alto, ancho = frame.shape[:2]
 
@@ -169,7 +172,7 @@ def aplicar_efectos(frame, filtro):
                 r = np.sqrt(dx**2 + dy**2)
 
                 # Aplicar la distorsión radial
-                nuevo_r = r * (1 + k1 * r + k2 * r**2)
+                nuevo_r = r * (1 + k1 * r**2 + k2 * r**4)
 
                 # Calcular las nuevas coordenadas
                 nuevo_x = centro_x + dx * nuevo_r / r
