@@ -8,73 +8,64 @@ import argparse
 def gaussian_blur(image, kernel_size, sigma):
     """
     Aplica un filtro Gaussiano a la imagen dada.
-    
+   
     Args:
         image: La imagen de entrada (numpy array).
         kernel_size: El tamaño del kernel Gaussiano (debe ser un número impar).
         sigma: El desvío estándar del kernel Gaussiano.
-    
+   
     Returns:
         La imagen suavizada.
     """
     # Crear un kernel Gaussiano
     kernel = gaussian_kernel(kernel_size, sigma)
-    
+   
     # Aplicar convolución
     blurred_image = convolution(image, kernel)
-    
+   
     return blurred_image
 
 def gaussian_kernel(kernel_size, sigma):
     """
     Genera un kernel Gaussiano de tamaño kernel_size x kernel_size y con el desvío estándar dado.
-    
+   
     Args:
         kernel_size: El tamaño del kernel (debe ser un número impar).
         sigma: El desvío estándar del kernel Gaussiano.
-        
+     
     Returns:
         El kernel Gaussiano.
     """
     kernel = np.fromfunction(lambda x, y: (1/(2*np.pi*sigma**2)) * np.exp(-((x - (kernel_size-1)/2)**2 + (y - (kernel_size-1)/2)**2)/(2*sigma**2)), (kernel_size, kernel_size))
-    kernel /= np.sum(kernel)  # Normalizar el kernel
+    kernel /= np.sum(kernel) # Normalizar el kernel
     return kernel
 
 def convolution(image, kernel):
     """
-    Aplica una convolución entre la imagen y el kernel dado.
-    
+    Aplica una convolución bidimensional entre la imagen y el kernel dado.
+   
     Args:
         image: La imagen de entrada (numpy array).
         kernel: El kernel a utilizar en la convolución.
-        
+     
     Returns:
-        La imagen resultante después de aplicar la convolución.
+        La imagen resultante después de la convolución.
     """
-    # Extraer dimensiones de la imagen y del kernel
-    image_height, image_width, num_channels = image.shape
     kernel_height, kernel_width = kernel.shape
-    
-    # Calcular la cantidad de píxeles a agregar alrededor de la imagen para poder aplicar el kernel completo
-    pad_height = kernel_height // 2
-    pad_width = kernel_width // 2
-    
-    # Crear una imagen con relleno
-    padded_image = np.pad(image, ((pad_height, pad_height), (pad_width, pad_width), (0, 0)), mode='constant')
-    
-    # Inicializar la imagen resultante
+    image_height, image_width = image.shape
+   
+    # Padding de la imagen para manejar los bordes
+    padded_image = np.pad(image, ((kernel_height//2, kernel_height//2), (kernel_width//2, kernel_width//2)), mode='constant')
+   
+    # Crear la imagen resultante
     result_image = np.zeros_like(image)
-    
-    # Aplicar la convolución en cada canal por separado
-    for c in range(num_channels):
-        for y in range(image_height):
-            for x in range(image_width):
-                # Extraer la región de la imagen que se superpone con el kernel
-                region = padded_image[y:y+kernel_height, x:x+kernel_width, c]
-                # Realizar la convolución y sumar los resultados
-                result_image[y, x, c] = np.sum(region * kernel)
-    
-    return result_image.astype(np.uint8)
+   
+    # Realizar la convolución
+    for y in range(image_height):
+        for x in range(image_width):
+            result_image[y, x] = np.sum(padded_image[y:y+kernel_height, x:x+kernel_width] * kernel)
+   
+    return result_image
 
 
 def calcHist(image):
@@ -174,7 +165,7 @@ def aplicar_efectos(image, filtro):
         image = cv2.remap(image, x_distorsion, y_distorsion, cv2.INTER_LINEAR)
     elif filtro == 'blur':
         # Filtro de desenfoque
-        image = gaussian_blur(image, 31, 0.5)
+        image = gaussian_blur(image, 15, 1.5)
     return image
 
 def main(image_path, filtro):
