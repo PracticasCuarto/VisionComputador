@@ -9,7 +9,7 @@ image_blurred = cv2.GaussianBlur(image, (5, 5), 0)
 
 # Calcular el gradiente horizontal y vertical con Sobel
 gradient_x = cv2.Sobel(image_blurred, cv2.CV_64F, 1, 0, ksize=3)
-gradient_y= cv2.Sobel(image_blurred, cv2.CV_64F, 0, 1, ksize=3)
+gradient_y = cv2.Sobel(image_blurred, cv2.CV_64F, 0, 1, ksize=3)
 gradient_y_inverted = gradient_y * -1
 
 # Normalizar los valores del gradiente al rango [0, 255]
