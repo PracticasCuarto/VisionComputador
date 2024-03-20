@@ -49,7 +49,7 @@ def encontrar_valor_aproximado_puntos(puntos, margen=2):
     return punto_medio
 
 # Cargar la imagen
-image = cv2.imread('Contornos/pasillo2.pgm', cv2.IMREAD_GRAYSCALE)
+image = cv2.imread('Contornos/pasillo1.pgm', cv2.IMREAD_GRAYSCALE)
 
 # Aplicar filtrado Gaussiano
 image_blurred = cv2.GaussianBlur(image, (5, 5), 0)
@@ -119,6 +119,22 @@ for punto, direccion in zip(puntos, filtered_gradient_orientation):
     if puntoInterseccion[0] != None:
         intersecciones.append(puntoInterseccion)
 
+        # Mostrar el par de puntos (punto original, punto de interseccion)
+
+        cv2.circle(image, (x, y), 2, (0, 255, 0), -1)  # Punto original
+
+        x_interseccion, y_interseccion = puntoInterseccion
+
+        cv2.circle(image, (int(x_interseccion), int(y_interseccion)), 2, (0, 0, 255), -1)  # Punto de intersección
+
+        # Mostrar la imagen
+        cv2.imshow("Intersecciones con la linea del horizonte", image)
+
+        # Esperar 0.3 segundos
+        cv2.waitKey(10)
+
+
+
 punto_mas_votado = encontrar_valor_aproximado_puntos(intersecciones)
 
 print("El punto más votado es:", punto_mas_votado)
@@ -134,17 +150,3 @@ cv2.imshow("Intersecciones con la linea del horizonte", image)
 
 cv2.waitKey(0)
 cv2.destroyAllWindows()
-
-# Dibujar una cruz en el punto de fuga
-# img_with_cross = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
-# cv2.drawMarker(img_with_cross, (focal_point, img.shape[0] // 2), (0, 255, 0), markerType=cv2.MARKER_CROSS, markerSize=20, thickness=2)
-
-# # Mostrar la imagen con la cruz
-# cv2.imshow('Image with Cross', img_with_cross)
-# cv2.waitKey(0)
-# cv2.destroyAllWindows()
-
-
-
-# Gradiente en funcion del umbral, pintarlos, y decir que esos votan
-# para quitar las lineas con la orientacion del gradiente (15)

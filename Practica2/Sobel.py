@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import os
 
 # Cargar la imagen
 image = cv2.imread('Contornos/poster.pgm', cv2.IMREAD_GRAYSCALE)
@@ -37,6 +38,20 @@ normalized_orientation_255 = (normalized_orientation / np.pi * 128).astype(np.ui
 # Aplicar umbral para resaltar bordes
 threshold_value = 20
 bordes = cv2.threshold(normalized_magnitude, threshold_value, 255, cv2.THRESH_BINARY)[1]
+
+# Define la ruta de la carpeta resultados
+carpeta_resultados = 'resultados/'
+
+# Asegúrate de que la carpeta resultados exista, si no, créala
+if not os.path.exists(carpeta_resultados):
+    os.makedirs(carpeta_resultados)
+
+# Guarda las imágenes en la carpeta resultados
+cv2.imwrite(carpeta_resultados + 'Gradiente Horizontal.jpg', adjusted_gradient_x)
+cv2.imwrite(carpeta_resultados + 'Gradiente Vertical.jpg', adjusted_gradient_y_inverted)
+cv2.imwrite(carpeta_resultados + 'Modulo del Gradiente.jpg', normalized_magnitude)
+cv2.imwrite(carpeta_resultados + 'Orientacion del Gradiente.jpg', normalized_orientation_255)
+cv2.imwrite(carpeta_resultados + 'Bordes.jpg', bordes)
 
 # Mostrar los resultados
 cv2.imshow('Gradiente Horizontal', adjusted_gradient_x)
