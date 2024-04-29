@@ -4,6 +4,41 @@ import numpy as np
 import time
 import sys
 
+def create_panorama(image1, image2, matches, keypoints1, keypoints2):
+    # Extraer las ubicaciones de los puntos coincidentes en ambas imágenes
+    src_pts = np.float32([keypoints1[m.queryIdx].pt for m in matches]).reshape(-1, 1, 2)
+    dst_pts = np.float32([keypoints2[m.trainIdx].pt for m in matches]).reshape(-1, 1, 2)
+
+    # Calcular la homografía entre las imágenes
+    H, _ = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC)
+
+    # Obtener las dimensiones de la imagen de salida
+    h1, w1 = image1.shape[:2]
+    h2, w2 = image2.shape[:2]
+    corners1 = np.float32([[0, 0], [0, h1], [w1, h1], [w1, 0]]).reshape(-1, 1, 2)
+    corners2 = np.float32([[0, 0], [0, h2], [w2, h2], [w2, 0]]).reshape(-1, 1, 2)
+
+    # Transformar las esquinas de la imagen 2 a la perspectiva de la imagen 1
+    corners2_transformed = cv2.perspectiveTransform(corners2, H)
+
+    # Combinar las esquinas de ambas imágenes
+    corners = np.concatenate((corners1, corners2_transformed), axis=0)
+
+    # Encontrar los límites del panorama
+    [xmin, ymin] = np.int32(corners.min(axis=0).ravel() - 0.5)
+    [xmax, ymax] = np.int32(corners.max(axis=0).ravel() + 0.5)
+
+    # Calcular el desplazamiento necesario para que la imagen 1 esté alineada con el origen
+    t = [-xmin, -ymin]
+    H_translation = np.array([[1, 0, t[0]], [0, 1, t[1]], [0, 0, 1]])
+
+    # Aplicar la transformación a la imagen 2
+    panorama = cv2.warpPerspective(image2, H_translation.dot(H), (xmax - xmin, ymax - ymin))
+    panorama[t[1]:h1 + t[1], t[0]:w1 + t[0]] = image1  # Superponer la imagen 1 en el panorama
+
+    return panorama
+
+
 # Paso 1: Captura de imágenes, paso a niveles de gris y extracción de puntos de interés
 def extract_features(image, method, nfeatures=1000):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  # Convertir a escala de grises
@@ -63,8 +98,6 @@ def draw_keypoints(image, keypoints):
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-
-
 # Función principal
 def main():
     # Obtener el primer parámetro pasado al programa
@@ -105,47 +138,28 @@ def main():
 
                     # Paso 1: Extracción de características de la otra imagen
                     keypoints2, descriptors2 = extract_features(other_img, method=metodo, nfeatures=nfeatures)
-                    if (metodo == 'HARRIS'):
-                        gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-                        
-                        gray = np.float32(gray)
-                        dst = cv2.cornerHarris(gray,2,3,0.04)
-                        
-                        #result is dilated for marking the corners, not important
-                        dst = cv2.dilate(dst,None)
-                        
-                        # Threshold for an optimal value, it may vary depending on the image.
-                        img[dst>0.01*dst.max()]=[0,0,255]
-                        
-                        imagen_result = cv2.hconcat([img, other_img])
+                    descriptors1 = descriptors1.astype(np.uint8)
+                    descriptors2 = descriptors2.astype(np.uint8)
+                    
+                    # Paso 2: Búsqueda de emparejamientos por fuerza bruta
+                    start_time = time.time()
+                    matches = match_features_brute_force(descriptors1, descriptors2)
+                    end_time = time.time()
+                    print(metodo, " brute force matching time:", end_time - start_time)
+                    print("    Number of ", metodo, " matches:", len(matches))
 
-                        cv2.imshow('dst',imagen_result)
-                        if cv2.waitKey(0) & 0xff == 27:
-                            cv2.destroyAllWindows()
+                    # Paso 3: Búsqueda de emparejamientos por ratio test
+                    start_time = time.time()
+                    good_matches = match_features_ratio_test(descriptors1, descriptors2)
+                    end_time = time.time()
+                    print(metodo, "    ratio test matching time:", end_time - start_time)
+                    print("    Number of ", metodo, " good matches:", len(good_matches))
 
-
-                    else:
-                        descriptors1 = descriptors1.astype(np.uint8)
-                        descriptors2 = descriptors2.astype(np.uint8)
-                        
-                        # Paso 2: Búsqueda de emparejamientos por fuerza bruta
-                        start_time = time.time()
-                        matches = match_features_brute_force(descriptors1, descriptors2)
-                        end_time = time.time()
-                        print(metodo, " brute force matching time:", end_time - start_time)
-                        print("    Number of ", metodo, " matches:", len(matches))
-
-                        # Paso 3: Búsqueda de emparejamientos por ratio test
-                        start_time = time.time()
-                        good_matches = match_features_ratio_test(descriptors1, descriptors2)
-                        end_time = time.time()
-                        print(metodo, "    ratio test matching time:", end_time - start_time)
-                        print("    Number of ", metodo, " good matches:", len(good_matches))
-
-                        # Dibujar los emparejamientos
-                        # draw_matches(img, keypoints1_orb, other_img, keypoints2_orb, matches_orb)
-                        draw_matches(img, keypoints1, other_img, keypoints2, matches)
+                    # Dibujar los emparejamientos
+                    # draw_matches(img, keypoints1_orb, other_img, keypoints2_orb, matches_orb)
+                    draw_matches(img, keypoints1, other_img, keypoints2, matches)
 
 
 if __name__ == "__main__":
     main()
+
