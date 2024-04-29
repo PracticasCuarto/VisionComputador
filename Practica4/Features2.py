@@ -4,6 +4,21 @@ import numpy as np
 import time
 import sys
 
+def image_concatenation_direction(H, img_shape, image_file, other_image_file):
+    # Coordenadas de los vértices de la imagen de origen
+    src_corners = np.array([[0, 0], [0, img_shape[0]], [img_shape[1], img_shape[0]], [img_shape[1], 0]], dtype=np.float32).reshape(-1, 1, 2)
+
+    # Transforma las coordenadas de los vértices de la imagen de origen a las coordenadas de la imagen de destino
+    dst_corners = cv2.perspectiveTransform(src_corners, H)
+
+    # Determina si la imagen de origen se superpone a la izquierda o a la derecha de la imagen de destino
+    if dst_corners[:, 0, 0].min() < 0:  # Si alguna coordenada x es negativa, la imagen de origen se superpone a la izquierda
+        # print(f"La imagen de origen {image_file} se superpone a la izquierda de la imagen de destino {other_image_file}.")
+        return False
+    else:
+        # print(f"La imagen de origen {image_file} se superpone a la derecha de la imagen de destino {other_image_file}.")
+        return True
+
 def warp_images(img1, img2, H):
     h1, w1 = img1.shape[:2]
     h2, w2 = img2.shape[:2]
@@ -60,6 +75,22 @@ def draw_matches(image1, keypoints1, image2, keypoints2, matches):
     cv2.waitKey(0)
     cv2.destroyAllWindoqws()
 
+def calcularHomografia(img1, img2, method, nfeatures=1000):
+    keypoints1, descriptors1 = extract_features(img1, method=method, nfeatures=nfeatures)
+    keypoints2, descriptors2 = extract_features(img2, method=method, nfeatures=nfeatures)
+
+    good_matches = match_features_ratio_test(descriptors1, descriptors2)
+
+    if len(good_matches) < 4:
+        return None
+
+    src_pts = np.float32([keypoints1[m.queryIdx].pt for m in good_matches]).reshape(-1, 1, 2)
+    dst_pts = np.float32([keypoints2[m.trainIdx].pt for m in good_matches]).reshape(-1, 1, 2)
+
+    H, inliers = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC)
+
+    return H
+
 def main():
     if len(sys.argv) < 2:
         print("No se ha proporcionado ningún parámetro.")
@@ -78,8 +109,11 @@ def main():
     nfeatures = 10000
     image_features = []
 
+    imagenes = []
+
     for i, image_file in enumerate(image_files):
-        print("Procesando imagen:", image_file)
+        imagenes.append((image_file,0))
+        # print("Procesando imagen:", image_file)
         if image_file.lower().endswith(('.jpg', '.jpeg', '.png')):
             image_path = os.path.join(folder_path, image_file)
             img = cv2.imread(image_path)
@@ -105,29 +139,90 @@ def main():
                     # H, inliers = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 500.0)
                     H, inliers = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC)
 
+                    # Calcular la distancia media a la que estan los puntos de ambas imagenes
+                    distances = np.linalg.norm(src_pts - dst_pts, axis=2)
+                    mean_distance = np.mean(distances)
+
                     if H is not None:
-                        print("RANSAC encontró una transformación válida con", len(inliers), "inliers.")
+                        # print("RANSAC encontró una transformación válida con", len(inliers), "inliers y distancia media", mean_distance)
 
-                        image_features.append((i, i + 1, len(inliers), H))  # Almacena el índice de las imágenes y el número de inliers
+                        derecha = image_concatenation_direction(H, img.shape, image_file, other_image_file)
+                        if derecha:
+                            # Derecha
+                            image_features.append((other_image_file, image_file, other_img, img, mean_distance))
+                        else:
+                            # Izquierda
+                            image_features.append((image_file, other_image_file, img, other_img, mean_distance))
 
-                        print("Imagen 1:", image_file)
-                        print("Imagen 2:", other_image_file)
-                        result = warp_images(other_img, img, H)
+    numImagenes = 5
+    # Ordenar el panorama por orden de distancias
+    sorted_features = sorted(image_features, key=lambda x: x[-1])
+    num_images_to_keep = numImagenes - 1
+    image_count = {}
+    final_features = []
 
-                        # Display the blended image
-                        cv2.imshow('Blended Image', result)
-                        cv2.waitKey(0)
-                        cv2.destroyAllWindows()
+    for image_file, other_image_file, img, other_img, distancia in sorted_features:
+        # Contar la cantidad de veces que aparece cada imagen
+        image_count[image_file] = image_count.get(image_file, 0) + 1
+        image_count[other_image_file] = image_count.get(other_image_file, 0) + 1
 
-    print("Número de emparejamientos válidos:", len(image_features))
-    # Ordenar imágenes por número de inliers
-    image_features.sort(key=lambda x: x[2], reverse=True)
+        # Verificar que ninguna imagen aparezca más de dos veces
+        if image_count[image_file] <= 2 and image_count[other_image_file] <= 2:
+            # Añadir el par de imágenes a la lista final
+            final_features.append((image_file, other_image_file, img, other_img, distancia))
 
-    print("Número de imágenes con homografía válida:", len(image_features))
+            # Verificar si ya se alcanzó el número deseado de imágenes
+            if len(final_features) == num_images_to_keep:
+                break
+        else:
+            # Si una imagen ya apareció dos veces, eliminar todas las parejas que contengan esa imagen
+            final_features = [(f1, f2, img1, img2, dist) for f1, f2, img1, img2, dist in final_features
+                            if f1 != image_file and f2 != image_file]
 
-    # Crear el panorama
+    # Imprimir los resultados finales
+    for image_file, other_image_file, img, other_img, distancia in final_features:
+        print(f"{image_file} - {other_image_file} - Distancia: {distancia}")
 
+    all_other_images = set(other_image_file for _, other_image_file, _, _, _ in final_features)
 
+    # Encontrar la imagen que no se menciona como 'other_image_file'
+    first_left_image = None
+    for image_file, _, _, _, _ in final_features:
+        if image_file not in all_other_images:
+            first_left_image = image_file
+            break
+
+    print("Imagen izquierda:", first_left_image)
+
+    # Esta pocho por que habría que mirar cual es la siguiente de verdad pero por casualidad sale bien jeje
+
+    # Crear el panorama empezando por la imagen izquierda y concatenando las demás imágenes
+    panorama = None
+    ultima_imagen = None
+    for image_file, other_image_file, img, other_img, distancia in final_features:
+        if (image_file == first_left_image):
+            H = calcularHomografia(img, other_img, metodo, nfeatures)
+            panorama = warp_images(other_img, img, H)
+            # Eliminar de la lista 
+            final_features.remove((image_file, other_image_file, img, other_img, distancia))
+            cv2.imshow("Panorama", panorama)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+
+    for image_file, other_image_file, img, other_img, distancia in final_features:
+        print(f"{image_file} - {other_image_file} - Distancia: {distancia}")
+        H = calcularHomografia(other_img, panorama, metodo, nfeatures)
+        panorama = warp_images(panorama, other_img, H)
+        # Mostrar el panorama final
+        cv2.imshow("Panorama", panorama)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
+    
+    # Mostrar el panorama final
+    cv2.imshow("Panorama", panorama)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
 if __name__ == "__main__":
     main()
