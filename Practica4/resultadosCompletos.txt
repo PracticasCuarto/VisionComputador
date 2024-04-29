@@ -1,0 +1,384 @@
+=====================================
+Method: ORB, nFeatures: 100
+Processing image: building2.jpg
+ORB  brute force matching time: 0.00023746490478515625
+ORB     ratio test matching time: 0.0001537799835205078
+ORB  brute force matching time: 0.00023508071899414062
+ORB     ratio test matching time: 0.00014138221740722656
+ORB  brute force matching time: 0.00022077560424804688
+ORB     ratio test matching time: 0.00015354156494140625
+ORB  brute force matching time: 0.0002117156982421875
+ORB     ratio test matching time: 0.0001361370086669922
+Processing image: building4.jpg
+ORB  brute force matching time: 0.00030732154846191406
+ORB     ratio test matching time: 0.0001780986785888672
+ORB  brute force matching time: 0.00024771690368652344
+ORB     ratio test matching time: 0.00014591217041015625
+ORB  brute force matching time: 0.00022077560424804688
+ORB     ratio test matching time: 0.00014495849609375
+Processing image: building3.jpg
+ORB  brute force matching time: 0.0002493858337402344
+ORB     ratio test matching time: 0.00015020370483398438
+ORB  brute force matching time: 0.00026226043701171875
+ORB     ratio test matching time: 0.00020241737365722656
+Processing image: building1.jpg
+ORB  brute force matching time: 0.0002052783966064453
+ORB     ratio test matching time: 0.0001373291015625
+Processing image: building5.jpg
+Total processing time: 0.19513630867004395
+Number of iterations: 10
+Total number of good matches: 149
+Average number of good matches: 14.9
+-------------------------------------
+=====================================
+Method: ORB, nFeatures: 1000
+Processing image: building2.jpg
+ORB  brute force matching time: 0.010463953018188477
+ORB     ratio test matching time: 0.004747629165649414
+ORB  brute force matching time: 0.010605335235595703
+ORB     ratio test matching time: 0.0039157867431640625
+ORB  brute force matching time: 0.010494232177734375
+ORB     ratio test matching time: 0.004761457443237305
+ORB  brute force matching time: 0.010352849960327148
+ORB     ratio test matching time: 0.004861116409301758
+Processing image: building4.jpg
+ORB  brute force matching time: 0.012257814407348633
+ORB     ratio test matching time: 0.004080533981323242
+ORB  brute force matching time: 0.009483575820922852
+ORB     ratio test matching time: 0.004014492034912109
+ORB  brute force matching time: 0.009088516235351562
+ORB     ratio test matching time: 0.004800558090209961
+Processing image: building3.jpg
+ORB  brute force matching time: 0.010202407836914062
+ORB     ratio test matching time: 0.004286050796508789
+ORB  brute force matching time: 0.010634899139404297
+ORB     ratio test matching time: 0.004637241363525391
+Processing image: building1.jpg
+ORB  brute force matching time: 0.012017250061035156
+ORB     ratio test matching time: 0.004315853118896484
+Processing image: building5.jpg
+Total processing time: 0.46313047409057617
+Number of iterations: 10
+Total number of good matches: 1568
+Average number of good matches: 156.8
+-------------------------------------
+=====================================
+Method: ORB, nFeatures: 10000
+Processing image: building2.jpg
+ORB  brute force matching time: 0.42836666107177734
+ORB     ratio test matching time: 0.22321510314941406
+ORB  brute force matching time: 0.47794270515441895
+ORB     ratio test matching time: 0.24054765701293945
+ORB  brute force matching time: 0.5079741477966309
+ORB     ratio test matching time: 0.2707393169403076
+ORB  brute force matching time: 0.4482119083404541
+ORB     ratio test matching time: 0.21729016304016113
+Processing image: building4.jpg
+ORB  brute force matching time: 0.47607874870300293
+ORB     ratio test matching time: 0.2784309387207031
+ORB  brute force matching time: 0.4324047565460205
+ORB     ratio test matching time: 0.20746517181396484
+ORB  brute force matching time: 0.3440546989440918
+ORB     ratio test matching time: 0.17069554328918457
+Processing image: building3.jpg
+ORB  brute force matching time: 0.46282362937927246
+ORB     ratio test matching time: 0.22769927978515625
+ORB  brute force matching time: 0.3711581230163574
+ORB     ratio test matching time: 0.1903371810913086
+Processing image: building1.jpg
+ORB  brute force matching time: 0.38747119903564453
+ORB     ratio test matching time: 0.1956005096435547
+Processing image: building5.jpg
+Total processing time: 7.369798421859741
+Number of iterations: 10
+Total number of good matches: 9831
+Average number of good matches: 983.1
+-------------------------------------
+=====================================
+Method: ORB, nFeatures: 20000
+Processing image: building2.jpg
+ORB  brute force matching time: 0.6832339763641357
+ORB     ratio test matching time: 0.35265684127807617
+ORB  brute force matching time: 0.7929000854492188
+ORB     ratio test matching time: 0.3867452144622803
+ORB  brute force matching time: 0.6856648921966553
+ORB     ratio test matching time: 0.3396778106689453
+ORB  brute force matching time: 0.555490255355835
+ORB     ratio test matching time: 0.2744166851043701
+Processing image: building4.jpg
+ORB  brute force matching time: 0.5928022861480713
+ORB     ratio test matching time: 0.29404616355895996
+ORB  brute force matching time: 0.56215500831604
+ORB     ratio test matching time: 0.2827303409576416
+ORB  brute force matching time: 0.46033191680908203
+ORB     ratio test matching time: 0.24180150032043457
+Processing image: building3.jpg
+ORB  brute force matching time: 0.6352620124816895
+ORB     ratio test matching time: 0.32013654708862305
+ORB  brute force matching time: 0.5283689498901367
+ORB     ratio test matching time: 0.2721869945526123
+Processing image: building1.jpg
+ORB  brute force matching time: 0.4992985725402832
+ORB     ratio test matching time: 0.25467443466186523
+Processing image: building5.jpg
+Total processing time: 9.932394027709961
+Number of iterations: 10
+Total number of good matches: 11694
+Average number of good matches: 1169.4
+-------------------------------------
+=====================================
+Method: SIFT, nFeatures: 100
+Processing image: building2.jpg
+SIFT  brute force matching time: 0.0002186298370361328
+SIFT     ratio test matching time: 0.00014972686767578125
+SIFT  brute force matching time: 0.0002143383026123047
+SIFT     ratio test matching time: 0.00016260147094726562
+SIFT  brute force matching time: 0.00022149085998535156
+SIFT     ratio test matching time: 0.0001392364501953125
+SIFT  brute force matching time: 0.0002224445343017578
+SIFT     ratio test matching time: 0.00013065338134765625
+Processing image: building4.jpg
+SIFT  brute force matching time: 0.0001990795135498047
+SIFT     ratio test matching time: 0.00013256072998046875
+SIFT  brute force matching time: 0.0002238750457763672
+SIFT     ratio test matching time: 0.00014352798461914062
+SIFT  brute force matching time: 0.00048661231994628906
+SIFT     ratio test matching time: 0.0002052783966064453
+Processing image: building3.jpg
+SIFT  brute force matching time: 0.0002524852752685547
+SIFT     ratio test matching time: 0.00016617774963378906
+SIFT  brute force matching time: 0.0002002716064453125
+SIFT     ratio test matching time: 0.0001354217529296875
+Processing image: building1.jpg
+SIFT  brute force matching time: 0.00021696090698242188
+SIFT     ratio test matching time: 0.00014638900756835938
+Processing image: building5.jpg
+Total processing time: 1.0303502082824707
+Number of iterations: 10
+Total number of good matches: 48
+Average number of good matches: 4.8
+-------------------------------------
+=====================================
+Method: SIFT, nFeatures: 1000
+Processing image: building2.jpg
+SIFT  brute force matching time: 0.010104179382324219
+SIFT     ratio test matching time: 0.005400419235229492
+SIFT  brute force matching time: 0.01029348373413086
+SIFT     ratio test matching time: 0.0054972171783447266
+SIFT  brute force matching time: 0.010485172271728516
+SIFT     ratio test matching time: 0.005722522735595703
+SIFT  brute force matching time: 0.010987520217895508
+SIFT     ratio test matching time: 0.005939483642578125
+Processing image: building4.jpg
+SIFT  brute force matching time: 0.009992361068725586
+SIFT     ratio test matching time: 0.005255699157714844
+SIFT  brute force matching time: 0.009834051132202148
+SIFT     ratio test matching time: 0.005303621292114258
+SIFT  brute force matching time: 0.010314702987670898
+SIFT     ratio test matching time: 0.005116939544677734
+Processing image: building3.jpg
+SIFT  brute force matching time: 0.010117769241333008
+SIFT     ratio test matching time: 0.005096912384033203
+SIFT  brute force matching time: 0.010992288589477539
+SIFT     ratio test matching time: 0.005204439163208008
+Processing image: building1.jpg
+SIFT  brute force matching time: 0.011972904205322266
+SIFT     ratio test matching time: 0.0052411556243896484
+Processing image: building5.jpg
+Total processing time: 1.3416874408721924
+Number of iterations: 10
+Total number of good matches: 209
+Average number of good matches: 20.9
+-------------------------------------
+=====================================
+Method: SIFT, nFeatures: 10000
+Processing image: building2.jpg
+SIFT  brute force matching time: 0.04737114906311035
+SIFT     ratio test matching time: 0.024332046508789062
+SIFT  brute force matching time: 0.046176910400390625
+SIFT     ratio test matching time: 0.02409076690673828
+SIFT  brute force matching time: 0.04376339912414551
+SIFT     ratio test matching time: 0.02200770378112793
+SIFT  brute force matching time: 0.04271864891052246
+SIFT     ratio test matching time: 0.022763729095458984
+Processing image: building4.jpg
+SIFT  brute force matching time: 0.04634547233581543
+SIFT     ratio test matching time: 0.02396368980407715
+SIFT  brute force matching time: 0.04356527328491211
+SIFT     ratio test matching time: 0.022258281707763672
+SIFT  brute force matching time: 0.04419398307800293
+SIFT     ratio test matching time: 0.02297353744506836
+Processing image: building3.jpg
+SIFT  brute force matching time: 0.03930521011352539
+SIFT     ratio test matching time: 0.02013421058654785
+SIFT  brute force matching time: 0.0495908260345459
+SIFT     ratio test matching time: 0.022550582885742188
+Processing image: building1.jpg
+SIFT  brute force matching time: 0.037737369537353516
+SIFT     ratio test matching time: 0.019622802734375
+Processing image: building5.jpg
+Total processing time: 1.938659906387329
+Number of iterations: 10
+Total number of good matches: 390
+Average number of good matches: 39.0
+-------------------------------------
+=====================================
+Method: SIFT, nFeatures: 20000
+Processing image: building2.jpg
+SIFT  brute force matching time: 0.04669547080993652
+SIFT     ratio test matching time: 0.024946928024291992
+SIFT  brute force matching time: 0.049399614334106445
+SIFT     ratio test matching time: 0.023593664169311523
+SIFT  brute force matching time: 0.04169821739196777
+SIFT     ratio test matching time: 0.02085089683532715
+SIFT  brute force matching time: 0.04432392120361328
+SIFT     ratio test matching time: 0.02206897735595703
+Processing image: building4.jpg
+SIFT  brute force matching time: 0.048659563064575195
+SIFT     ratio test matching time: 0.024526596069335938
+SIFT  brute force matching time: 0.04101204872131348
+SIFT     ratio test matching time: 0.021924257278442383
+SIFT  brute force matching time: 0.04733014106750488
+SIFT     ratio test matching time: 0.023016929626464844
+Processing image: building3.jpg
+SIFT  brute force matching time: 0.04170346260070801
+SIFT     ratio test matching time: 0.021088123321533203
+SIFT  brute force matching time: 0.04090523719787598
+SIFT     ratio test matching time: 0.021279335021972656
+Processing image: building1.jpg
+SIFT  brute force matching time: 0.0385129451751709
+SIFT     ratio test matching time: 0.020464658737182617
+Processing image: building5.jpg
+Total processing time: 1.9682221412658691
+Number of iterations: 10
+Total number of good matches: 390
+Average number of good matches: 39.0
+-------------------------------------
+=====================================
+Method: AKAZE, nFeatures: 100
+Processing image: building2.jpg
+AKAZE  brute force matching time: 0.01819753646850586
+AKAZE     ratio test matching time: 0.008973121643066406
+AKAZE  brute force matching time: 0.021433353424072266
+AKAZE     ratio test matching time: 0.011634111404418945
+AKAZE  brute force matching time: 0.02165532112121582
+AKAZE     ratio test matching time: 0.011208295822143555
+AKAZE  brute force matching time: 0.014730453491210938
+AKAZE     ratio test matching time: 0.007035017013549805
+Processing image: building4.jpg
+AKAZE  brute force matching time: 0.014850378036499023
+AKAZE     ratio test matching time: 0.007271528244018555
+AKAZE  brute force matching time: 0.015568256378173828
+AKAZE     ratio test matching time: 0.0074346065521240234
+AKAZE  brute force matching time: 0.010902643203735352
+AKAZE     ratio test matching time: 0.0045812129974365234
+Processing image: building3.jpg
+AKAZE  brute force matching time: 0.020982742309570312
+AKAZE     ratio test matching time: 0.009900093078613281
+AKAZE  brute force matching time: 0.012145280838012695
+AKAZE     ratio test matching time: 0.0061800479888916016
+Processing image: building1.jpg
+AKAZE  brute force matching time: 0.012534379959106445
+AKAZE     ratio test matching time: 0.005995988845825195
+Processing image: building5.jpg
+Total processing time: 1.1463663578033447
+Number of iterations: 10
+Total number of good matches: 2967
+Average number of good matches: 296.7
+-------------------------------------
+=====================================
+Method: AKAZE, nFeatures: 1000
+Processing image: building2.jpg
+AKAZE  brute force matching time: 0.017647981643676758
+AKAZE     ratio test matching time: 0.00883626937866211
+AKAZE  brute force matching time: 0.021649599075317383
+AKAZE     ratio test matching time: 0.011065006256103516
+AKAZE  brute force matching time: 0.022326231002807617
+AKAZE     ratio test matching time: 0.011505842208862305
+AKAZE  brute force matching time: 0.014844179153442383
+AKAZE     ratio test matching time: 0.007597684860229492
+Processing image: building4.jpg
+AKAZE  brute force matching time: 0.014669179916381836
+AKAZE     ratio test matching time: 0.007262468338012695
+AKAZE  brute force matching time: 0.02551865577697754
+AKAZE     ratio test matching time: 0.012962102890014648
+AKAZE  brute force matching time: 0.009108781814575195
+AKAZE     ratio test matching time: 0.0046460628509521484
+Processing image: building3.jpg
+AKAZE  brute force matching time: 0.02020859718322754
+AKAZE     ratio test matching time: 0.009616374969482422
+AKAZE  brute force matching time: 0.013983488082885742
+AKAZE     ratio test matching time: 0.0066072940826416016
+Processing image: building1.jpg
+AKAZE  brute force matching time: 0.01396799087524414
+AKAZE     ratio test matching time: 0.005922794342041016
+Processing image: building5.jpg
+Total processing time: 1.186263084411621
+Number of iterations: 10
+Total number of good matches: 2967
+Average number of good matches: 296.7
+-------------------------------------
+=====================================
+Method: AKAZE, nFeatures: 10000
+Processing image: building2.jpg
+AKAZE  brute force matching time: 0.018085241317749023
+AKAZE     ratio test matching time: 0.008933305740356445
+AKAZE  brute force matching time: 0.023552894592285156
+AKAZE     ratio test matching time: 0.01124262809753418
+AKAZE  brute force matching time: 0.021424055099487305
+AKAZE     ratio test matching time: 0.011703968048095703
+AKAZE  brute force matching time: 0.015671253204345703
+AKAZE     ratio test matching time: 0.008927106857299805
+Processing image: building4.jpg
+AKAZE  brute force matching time: 0.018955230712890625
+AKAZE     ratio test matching time: 0.007244110107421875
+AKAZE  brute force matching time: 0.014358043670654297
+AKAZE     ratio test matching time: 0.00811314582824707
+AKAZE  brute force matching time: 0.012173652648925781
+AKAZE     ratio test matching time: 0.004725933074951172
+Processing image: building3.jpg
+AKAZE  brute force matching time: 0.019489765167236328
+AKAZE     ratio test matching time: 0.009695053100585938
+AKAZE  brute force matching time: 0.012896060943603516
+AKAZE     ratio test matching time: 0.006595611572265625
+Processing image: building1.jpg
+AKAZE  brute force matching time: 0.015257120132446289
+AKAZE     ratio test matching time: 0.006197929382324219
+Processing image: building5.jpg
+Total processing time: 1.1584997177124023
+Number of iterations: 10
+Total number of good matches: 2967
+Average number of good matches: 296.7
+-------------------------------------
+=====================================
+Method: AKAZE, nFeatures: 20000
+Processing image: building2.jpg
+AKAZE  brute force matching time: 0.019289255142211914
+AKAZE     ratio test matching time: 0.008800029754638672
+AKAZE  brute force matching time: 0.022721529006958008
+AKAZE     ratio test matching time: 0.01104116439819336
+AKAZE  brute force matching time: 0.022748231887817383
+AKAZE     ratio test matching time: 0.011188507080078125
+AKAZE  brute force matching time: 0.013752937316894531
+AKAZE     ratio test matching time: 0.006538867950439453
+Processing image: building4.jpg
+AKAZE  brute force matching time: 0.014252662658691406
+AKAZE     ratio test matching time: 0.007581472396850586
+AKAZE  brute force matching time: 0.014471054077148438
+AKAZE     ratio test matching time: 0.007269144058227539
+AKAZE  brute force matching time: 0.009932756423950195
+AKAZE     ratio test matching time: 0.0044324398040771484
+Processing image: building3.jpg
+AKAZE  brute force matching time: 0.021181344985961914
+AKAZE     ratio test matching time: 0.009623050689697266
+AKAZE  brute force matching time: 0.013624906539916992
+AKAZE     ratio test matching time: 0.0074901580810546875
+Processing image: building1.jpg
+AKAZE  brute force matching time: 0.012754201889038086
+AKAZE     ratio test matching time: 0.005780458450317383
+Processing image: building5.jpg
+Total processing time: 1.1206181049346924
+Number of iterations: 10
+Total number of good matches: 2967
+Average number of good matches: 296.7
+-------------------------------------
