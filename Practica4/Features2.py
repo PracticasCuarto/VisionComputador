@@ -4,6 +4,26 @@ import numpy as np
 import time
 import sys
 
+def warp_images(img1, img2, H):
+    h1, w1 = img1.shape[:2]
+    h2, w2 = img2.shape[:2]
+
+    corners1 = np.float32([[0, 0], [0, h1], [w1, h1], [w1, 0]]).reshape(-1, 1, 2)
+    corners2 = np.float32([[0, 0], [0, h2], [w2, h2], [w2, 0]]).reshape(-1, 1, 2)
+    warped_corners2 = cv2.perspectiveTransform(corners2, H)
+
+    corners = np.concatenate((corners1, warped_corners2), axis=0)
+    [xmin, ymin] = np.int32(corners.min(axis=0).ravel() - 0.5)
+    [xmax, ymax] = np.int32(corners.max(axis=0).ravel() + 0.5)
+
+    t = [-xmin, -ymin]
+    Ht = np.array([[1, 0, t[0]], [0, 1, t[1]], [0, 0, 1]])
+
+    warped_img2 = cv2.warpPerspective(img2, Ht @ H, (xmax - xmin, ymax - ymin))
+    warped_img2[t[1]:h1 + t[1], t[0]:w1 + t[0]] = img1
+
+    return warped_img2
+
 def extract_features(image, method, nfeatures=1000):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     if method == 'ORB':
@@ -56,6 +76,7 @@ def main():
     print("Número de imágenes en la carpeta:", len(image_files))
 
     nfeatures = 10000
+    image_features = []
 
     for i, image_file in enumerate(image_files):
         print("Procesando imagen:", image_file)
@@ -81,22 +102,52 @@ def main():
                     dst_pts = np.float32([keypoints2[m.trainIdx].pt for m in good_matches]).reshape(-1, 1, 2)
 
                     # Uso de RANSAC para estimar la homografía
-                    model_ransac, inliers = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 500.0)
+                    # H, inliers = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 500.0)
+                    H, inliers = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC)
 
-                    if model_ransac is not None:
+                    if H is not None:
                         print("RANSAC encontró una transformación válida con", len(inliers), "inliers.")
 
-                        # Visualización de los inliers
-                        matches_mask = inliers.ravel().tolist()
-                        draw_params = dict(matchColor=(0, 255, 0), singlePointColor=None, matchesMask=matches_mask, flags=2)
-                        img_matched = cv2.drawMatches(img, keypoints1, other_img, keypoints2, good_matches, None, **draw_params)
+                        # # Visualización de los inliers
+                        # matches_mask = inliers.ravel().tolist()
+                        # draw_params = dict(matchColor=(0, 255, 0), singlePointColor=None, matchesMask=matches_mask, flags=2)
+                        # img_matched = cv2.drawMatches(img, keypoints1, other_img, keypoints2, good_matches, None, **draw_params)
 
-                        # image_features.append((i, i + 1, len(inliers)))  # Almacena el índice de las imágenes y el número de inliers
+                        # cv2.imshow("Matches with RANSAC", img_matched)
+                        # cv2.waitKey(0)
+                        # cv2.destroyAllWindows()
 
+                        image_features.append((i, i + 1, len(inliers), H))  # Almacena el índice de las imágenes y el número de inliers
 
-                        cv2.imshow("Matches with RANSAC", img_matched)
+                        print("Imagen 1:", image_file)
+                        print("Imagen 2:", other_image_file)
+                        result = warp_images(other_img, img, H)
+
+                        
+                        # Warp the first image using the homography
+                        # result = cv2.warpPerspective(other_img, H, (img.shape[1], img.shape[0]))
+
+                        # Blending the warped image with the second image using alpha blending
+                        # alpha = 0.5  # blending factor
+                        # blended_image = cv2.addWeighted(result, alpha, img, 1 - alpha, 0)
+
+                        # Display the blended image
+                        cv2.imshow('Blended Image', result)
                         cv2.waitKey(0)
                         cv2.destroyAllWindows()
+
+                        # cv2.imshow("Matches with RANSAC", img_matched)
+                        # cv2.waitKey(0)
+                        # cv2.destroyAllWindows()
+    print("Número de emparejamientos válidos:", len(image_features))
+    # Ordenar imágenes por número de inliers
+    image_features.sort(key=lambda x: x[2], reverse=True)
+
+    print("Número de imágenes con homografía válida:", len(image_features))
+
+    # Crear el panorama
+
+
 
 if __name__ == "__main__":
     main()
