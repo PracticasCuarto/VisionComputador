@@ -1,3 +1,4 @@
+# python3 Features2.py SIFT
 import os
 import cv2
 import numpy as np
@@ -71,8 +72,11 @@ def create_panorama(image_files, image_features):
     base_image_file = image_files[base_idx]
     base_image_path = os.path.join(folder_path, base_image_file)
     base_img = cv2.imread(base_image_path)
+
+    # Calcular el número de imagenes en el panorama
+    num_images = len(image_files)
     
-    # Crear el lienzo para el panorama
+    # Crear el lienzo para el panorama en este caso horizontal
     panorama_width = base_img.shape[1]
     panorama_height = base_img.shape[0]
     
