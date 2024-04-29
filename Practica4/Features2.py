@@ -108,37 +108,17 @@ def main():
                     if H is not None:
                         print("RANSAC encontró una transformación válida con", len(inliers), "inliers.")
 
-                        # # Visualización de los inliers
-                        # matches_mask = inliers.ravel().tolist()
-                        # draw_params = dict(matchColor=(0, 255, 0), singlePointColor=None, matchesMask=matches_mask, flags=2)
-                        # img_matched = cv2.drawMatches(img, keypoints1, other_img, keypoints2, good_matches, None, **draw_params)
-
-                        # cv2.imshow("Matches with RANSAC", img_matched)
-                        # cv2.waitKey(0)
-                        # cv2.destroyAllWindows()
-
                         image_features.append((i, i + 1, len(inliers), H))  # Almacena el índice de las imágenes y el número de inliers
 
                         print("Imagen 1:", image_file)
                         print("Imagen 2:", other_image_file)
                         result = warp_images(other_img, img, H)
 
-                        
-                        # Warp the first image using the homography
-                        # result = cv2.warpPerspective(other_img, H, (img.shape[1], img.shape[0]))
-
-                        # Blending the warped image with the second image using alpha blending
-                        # alpha = 0.5  # blending factor
-                        # blended_image = cv2.addWeighted(result, alpha, img, 1 - alpha, 0)
-
                         # Display the blended image
                         cv2.imshow('Blended Image', result)
                         cv2.waitKey(0)
                         cv2.destroyAllWindows()
 
-                        # cv2.imshow("Matches with RANSAC", img_matched)
-                        # cv2.waitKey(0)
-                        # cv2.destroyAllWindows()
     print("Número de emparejamientos válidos:", len(image_features))
     # Ordenar imágenes por número de inliers
     image_features.sort(key=lambda x: x[2], reverse=True)
