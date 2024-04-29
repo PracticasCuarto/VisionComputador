@@ -4,40 +4,6 @@ import numpy as np
 import time
 import sys
 
-def create_panorama(image1, image2, matches, keypoints1, keypoints2):
-    # Extraer las ubicaciones de los puntos coincidentes en ambas imágenes
-    src_pts = np.float32([keypoints1[m.queryIdx].pt for m in matches]).reshape(-1, 1, 2)
-    dst_pts = np.float32([keypoints2[m.trainIdx].pt for m in matches]).reshape(-1, 1, 2)
-
-    # Calcular la homografía entre las imágenes
-    H, _ = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC)
-
-    # Obtener las dimensiones de la imagen de salida
-    h1, w1 = image1.shape[:2]
-    h2, w2 = image2.shape[:2]
-    corners1 = np.float32([[0, 0], [0, h1], [w1, h1], [w1, 0]]).reshape(-1, 1, 2)
-    corners2 = np.float32([[0, 0], [0, h2], [w2, h2], [w2, 0]]).reshape(-1, 1, 2)
-
-    # Transformar las esquinas de la imagen 2 a la perspectiva de la imagen 1
-    corners2_transformed = cv2.perspectiveTransform(corners2, H)
-
-    # Combinar las esquinas de ambas imágenes
-    corners = np.concatenate((corners1, corners2_transformed), axis=0)
-
-    # Encontrar los límites del panorama
-    [xmin, ymin] = np.int32(corners.min(axis=0).ravel() - 0.5)
-    [xmax, ymax] = np.int32(corners.max(axis=0).ravel() + 0.5)
-
-    # Calcular el desplazamiento necesario para que la imagen 1 esté alineada con el origen
-    t = [-xmin, -ymin]
-    H_translation = np.array([[1, 0, t[0]], [0, 1, t[1]], [0, 0, 1]])
-
-    # Aplicar la transformación a la imagen 2
-    panorama = cv2.warpPerspective(image2, H_translation.dot(H), (xmax - xmin, ymax - ymin))
-    panorama[t[1]:h1 + t[1], t[0]:w1 + t[0]] = image1  # Superponer la imagen 1 en el panorama
-
-    return panorama
-
 
 # Paso 1: Captura de imágenes, paso a niveles de gris y extracción de puntos de interés
 def extract_features(image, method, nfeatures=1000):
@@ -68,7 +34,7 @@ def match_features_brute_force(des1, des2):
 
 # Paso 3: Búsqueda de emparejamientos por fuerza bruta, buscando el vecino más próximo
 # y comprobando el ratio al segundo vecino
-def match_features_ratio_test(des1, des2, ratio=0.75):
+def match_features_ratio_test(des1, des2, ratio=0.8):
     bf = cv2.BFMatcher(cv2.NORM_HAMMING)
     matches = bf.knnMatch(des1, des2, k=2)
     good_matches = []
@@ -125,7 +91,7 @@ def main():
             img = cv2.imread(image_path)
 
             # Parámetros para los detectores de puntos de interés
-            nfeatures = 1000
+            nfeatures = 10000
 
             # Paso 1: Extracción de características
             keypoints1, descriptors1 = extract_features(img, method=metodo, nfeatures=nfeatures)
@@ -158,6 +124,7 @@ def main():
                     # Dibujar los emparejamientos
                     # draw_matches(img, keypoints1_orb, other_img, keypoints2_orb, matches_orb)
                     draw_matches(img, keypoints1, other_img, keypoints2, matches)
+
 
 
 if __name__ == "__main__":
