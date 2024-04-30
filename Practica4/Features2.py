@@ -4,6 +4,18 @@ import numpy as np
 import time
 import sys
 
+# Función para dibujar emparejamientos
+def draw_matches(image1, keypoints1, image2, keypoints2, matches):
+    # Convertir imágenes a escala de grises
+    gray_img1 = cv2.cvtColor(image1, cv2.COLOR_BGR2GRAY)
+    gray_img2 = cv2.cvtColor(image2, cv2.COLOR_BGR2GRAY)
+
+    # Dibujar los emparejamientos
+    result = cv2.drawMatches(gray_img1, keypoints1, gray_img2, keypoints2, matches, None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+    cv2.imshow("Matches", result)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
 def image_concatenation_direction(H, img_shape, image_file, other_image_file):
     # Coordenadas de los vértices de la imagen de origen
     src_corners = np.array([[0, 0], [0, img_shape[0]], [img_shape[1], img_shape[0]], [img_shape[1], 0]], dtype=np.float32).reshape(-1, 1, 2)
@@ -13,10 +25,10 @@ def image_concatenation_direction(H, img_shape, image_file, other_image_file):
 
     # Determina si la imagen de origen se superpone a la izquierda o a la derecha de la imagen de destino
     if dst_corners[:, 0, 0].min() < 0:  # Si alguna coordenada x es negativa, la imagen de origen se superpone a la izquierda
-        # print(f"La imagen de origen {image_file} se superpone a la izquierda de la imagen de destino {other_image_file}.")
+        print(f"La imagen de origen {image_file} se superpone a la izquierda de la imagen de destino {other_image_file}.")
         return False
     else:
-        # print(f"La imagen de origen {image_file} se superpone a la derecha de la imagen de destino {other_image_file}.")
+        print(f"La imagen de origen {image_file} se superpone a la derecha de la imagen de destino {other_image_file}.")
         return True
 
 def warp_images(img1, img2, H):
@@ -54,7 +66,7 @@ def extract_features(image, method, nfeatures=1000):
     keypoints, descriptors = detector.detectAndCompute(gray, None)
     return keypoints, descriptors
 
-def match_features_ratio_test(des1, des2, ratio=0.82):
+def match_features_ratio_test(des1, des2, ratio=0.80):
     des1 = des1.astype(np.uint8)  # Convertir descriptores a tipo CV_8U
     des2 = des2.astype(np.uint8)
 
@@ -73,13 +85,15 @@ def draw_matches(image1, keypoints1, image2, keypoints2, matches):
     result = cv2.drawMatches(gray_img1, keypoints1, gray_img2, keypoints2, matches, None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
     cv2.imshow("Matches", result)
     cv2.waitKey(0)
-    cv2.destroyAllWindoqws()
+    cv2.destroyAllWindows()
 
 def calcularHomografia(img1, img2, method, nfeatures=1000):
     keypoints1, descriptors1 = extract_features(img1, method=method, nfeatures=nfeatures)
     keypoints2, descriptors2 = extract_features(img2, method=method, nfeatures=nfeatures)
 
     good_matches = match_features_ratio_test(descriptors1, descriptors2)
+
+    draw_matches(img1, keypoints1, img2, keypoints2, good_matches)
 
     if len(good_matches) < 4:
         return None
@@ -194,14 +208,14 @@ def main():
 
     print("Imagen izquierda:", first_left_image)
 
-    # Esta pocho por que habría que mirar cual es la siguiente de verdad pero por casualidad sale bien jeje
+    # TODO: Esta pocho por que habría que mirar cual es la siguiente de verdad pero por casualidad sale bien jeje
 
     # Crear el panorama empezando por la imagen izquierda y concatenando las demás imágenes
     panorama = None
-    ultima_imagen = None
     for image_file, other_image_file, img, other_img, distancia in final_features:
         if (image_file == first_left_image):
             H = calcularHomografia(img, other_img, metodo, nfeatures)
+            
             panorama = warp_images(other_img, img, H)
             # Eliminar de la lista 
             final_features.remove((image_file, other_image_file, img, other_img, distancia))
@@ -209,14 +223,41 @@ def main():
             cv2.waitKey(0)
             cv2.destroyAllWindows()
 
-    for image_file, other_image_file, img, other_img, distancia in final_features:
-        print(f"{image_file} - {other_image_file} - Distancia: {distancia}")
-        H = calcularHomografia(other_img, panorama, metodo, nfeatures)
-        panorama = warp_images(panorama, other_img, H)
-        # Mostrar el panorama final
-        cv2.imshow("Panorama", panorama)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+    # for image_file, other_image_file, img, other_img, distancia in final_features:
+    #     print(f"{image_file} - {other_image_file} - Distancia: {distancia}")
+    #     H = calcularHomografia(other_img, panorama, metodo, nfeatures)
+    #     panorama = warp_images(panorama, other_img, H)
+    #     # Mostrar el panorama final
+    #     cv2.imshow("Panorama", panorama)
+    #     cv2.waitKey(0)
+    #     cv2.destroyAllWindows()
+
+    image_file, other_image_file, img, other_img, distancia = final_features[0]
+    print(f"{image_file} - {other_image_file} - Distancia: {distancia}")
+    H = calcularHomografia(other_img, panorama, metodo, nfeatures)
+    panorama = warp_images(panorama, other_img, H)
+    # Mostrar el panorama final
+    cv2.imshow("Panorama", panorama)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+    image_file, other_image_file, img, other_img, distancia = final_features[1]
+    print(f"{image_file} - {other_image_file} - Distancia: {distancia}")
+    H = calcularHomografia(panorama, other_img, metodo, nfeatures)
+    panorama = warp_images(other_img, panorama, H)
+    # Mostrar el panorama final
+    cv2.imshow("Panorama", panorama)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+    image_file, other_image_file, img, other_img, distancia = final_features[2]
+    print(f"{image_file} - {other_image_file} - Distancia: {distancia}")
+    H = calcularHomografia(other_img, panorama, metodo, nfeatures)
+    panorama = warp_images(panorama, other_img, H)
+    # Mostrar el panorama final
+    cv2.imshow("Panorama", panorama)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
     
     # Mostrar el panorama final
