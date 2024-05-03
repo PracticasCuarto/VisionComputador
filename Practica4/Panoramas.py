@@ -32,7 +32,6 @@ def leerImagenes(folder_path):
     filenames = sorted(os.listdir(folder_path))
     for filename in filenames:
         if filename.endswith('.jpg'):
-            print(f"Procesando imagen: {filename}")
             img = cv2.imread(os.path.join(folder_path, filename))
             imagenes.append(img)
     return imagenes
@@ -118,85 +117,30 @@ def EncontrarMatches(imagenBase, imagenUnir):
     return GoodMatches, BaseImage_kp, SecImage_kp
 
 def calcularHomografia(BaseImage_kp, SecImage_kp, GoodMatches):
-    # If less than 4 matches found, exit the code.
+    # Si se encuentran menos de 4 emparejamientos, salir del código.
     if len(GoodMatches) < 4:
-        print("\nNot enough matches found between the images.\n")
+        print("\nNo se encontraron suficientes emparejamientos entre las imágenes.\n")
         exit(0)
 
-    # Storing coordinates of points corresponding to the matches found in both the images
-    BaseImage_pts = []
-    SecImage_pts = []
+    # Almacenando las coordenadas de los puntos correspondientes a los emparejamientos encontrados en ambas imágenes
+    PuntosImagenBase = []
+    PuntosImagenSec = []
     for Match in GoodMatches:
-        BaseImage_pts.append(BaseImage_kp[Match[0].queryIdx].pt)
-        SecImage_pts.append(SecImage_kp[Match[0].trainIdx].pt)
+        PuntosImagenBase.append(BaseImage_kp[Match[0].queryIdx].pt)
+        PuntosImagenSec.append(SecImage_kp[Match[0].trainIdx].pt)
 
-    # Changing the datatype to "float32" for finding homography
-    BaseImage_pts = np.float32(BaseImage_pts)
-    SecImage_pts = np.float32(SecImage_pts)
+    # Cambiando el tipo de datos a "float32" para encontrar la homografía
+    PuntosImagenBase = np.float32(PuntosImagenBase)
+    PuntosImagenSec = np.float32(PuntosImagenSec)
 
-    # Finding the homography matrix(transformation matrix).
-    (HomographyMatrix, _) = cv2.findHomography(SecImage_pts, BaseImage_pts, cv2.RANSAC, 4.0)
+    # Encontrar la matriz de homografía (matriz de transformación).
+    (MatrizHomografia, _) = cv2.findHomography(PuntosImagenSec, PuntosImagenBase, cv2.RANSAC, 4.0)
 
-    return HomographyMatrix
+    return MatrizHomografia
 
 
-def GetNewFrameSizeAndMatrix(HomographyMatrix, Sec_ImageShape, Base_ImageShape):
-    # Reading the size of the image
-    (Height, Width) = Sec_ImageShape
-    
-    # Taking the matrix of initial coordinates of the corners of the secondary image
-    # Stored in the following format: [[x1, x2, x3, x4], [y1, y2, y3, y4], [1, 1, 1, 1]]
-    # Where (xt, yt) is the coordinate of the i th corner of the image. 
-    InitialMatrix = np.array([[0, Width - 1, Width - 1, 0],
-                              [0, 0, Height - 1, Height - 1],
-                              [1, 1, 1, 1]])
-    
-    # Finding the final coordinates of the corners of the image after transformation.
-    # NOTE: Here, the coordinates of the corners of the frame may go out of the 
-    # frame(negative values). We will correct this afterwards by updating the 
-    # homography matrix accordingly.
-    FinalMatrix = np.dot(HomographyMatrix, InitialMatrix)
-
-    [x, y, c] = FinalMatrix
-    x = np.divide(x, c)
-    y = np.divide(y, c)
-
-    # Finding the dimentions of the stitched image frame and the "Correction" factor
-    min_x, max_x = int(round(min(x))), int(round(max(x)))
-    min_y, max_y = int(round(min(y))), int(round(max(y)))
-
-    New_Width = max_x
-    New_Height = max_y
-    Correction = [0, 0]
-    if min_x < 0:
-        New_Width -= min_x
-        Correction[0] = abs(min_x)
-    if min_y < 0:
-        New_Height -= min_y
-        Correction[1] = abs(min_y)
-    
-    # Again correcting New_Width and New_Height
-    # Helpful when secondary image is overlaped on the left hand side of the Base image.
-    if New_Width < Base_ImageShape[1] + Correction[0]:
-        New_Width = Base_ImageShape[1] + Correction[0]
-    if New_Height < Base_ImageShape[0] + Correction[1]:
-        New_Height = Base_ImageShape[0] + Correction[1]
-
-    # Finding the coordinates of the corners of the image if they all were within the frame.
-    x = np.add(x, Correction[0])
-    y = np.add(y, Correction[1])
-    OldInitialPoints = np.float32([[0, 0],
-                                   [Width - 1, 0],
-                                   [Width - 1, Height - 1],
-                                   [0, Height - 1]])
-    NewFinalPonts = np.float32(np.array([x, y]).transpose())
-
-    # Updating the homography matrix. Done so that now the secondary image completely 
-    # lies inside the frame
-    HomographyMatrix = cv2.getPerspectiveTransform(OldInitialPoints, NewFinalPonts)
-    
-    return [New_Height, New_Width], Correction, HomographyMatrix
-
+# Funcion obtenida de: https://github.com/PacktPublishing/OpenCV-with-Python-By-Example/tree/master
+# Dadas dos imagenes y su homografía calcula la imagen resultante de unirlas
 def warp_images(img1, img2, H):
     h1, w1 = img1.shape[:2]
     h2, w2 = img2.shape[:2]
@@ -217,26 +161,20 @@ def warp_images(img1, img2, H):
 
     return warped_img2
 
-def UnirImagen(imagenBase, imagenUnir):
+# Dadas dos imagenes, une ambas en una 
+def UnirImagen(imagen_base, imagen_unir):
 
     # Encontrar los puntos clave y emparejarlos
-    GoodMatches, BaseImage_kp, SecImage_kp = EncontrarMatches(imagenBase, imagenUnir)
+    buenos_emparejamientos, PC_base, PC_unir = EncontrarMatches(imagen_base, imagen_unir)
 
     # Calcular la matriz de homografía
-    H = calcularHomografia(BaseImage_kp, SecImage_kp, GoodMatches)
+    H = calcularHomografia(PC_base, PC_unir, buenos_emparejamientos)
 
-    # Actualizar el nuevo tamaño del tablero
-    # NewFrameSize, Correction, H = GetNewFrameSizeAndMatrix(H, imagenUnir.shape, imagenBase.shape)
+    # Unir las imágenes
+    imagen_unida = warp_images(imagen_base, imagen_unir, H)
 
-    # Unir las imágenes
-    # SecImage_Transformed = cv2.warpPerspective(imagenUnir, H, (NewFrameSize[1], NewFrameSize[0]))
-    # BaseImage_Transformed = np.zeros((NewFrameSize[0], NewFrameSize[1], 3), dtype=np.uint8)
-    # BaseImage_Transformed[Correction[1]:Correction[1]+imagenBase.shape[0], Correction[0]:Correction[0]+imagenBase.shape[1]] = imagenBase
+    return imagen_unida
 
-    # StitchedImage = cv2.bitwise_or(SecImage_Transformed, cv2.bitwise_and(BaseImage_Transformed, cv2.bitwise_not(SecImage_Transformed_Mask)))
-    StitchedImage = warp_images(imagenBase, imagenUnir, H)
-
-    return StitchedImage
 
 def main():
     if len(sys.argv) < 2:
