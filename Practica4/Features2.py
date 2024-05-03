@@ -46,7 +46,7 @@ def warp_images(img1, img2, H):
     t = [-xmin, -ymin]
     Ht = np.array([[1, 0, t[0]], [0, 1, t[1]], [0, 0, 1]])
 
-    warped_img2 = cv2.warpPerspective(img2, Ht @ H, (xmax - xmin, ymax - ymin))
+    warped_img2 = cv2.warpPerspective(img2,Ht @ H, (xmax - xmin, ymax - ymin))
     warped_img2[t[1]:h1 + t[1], t[0]:w1 + t[0]] = img1
 
     return warped_img2
@@ -120,7 +120,7 @@ def main():
 
     print("Número de imágenes en la carpeta:", len(image_files))
 
-    nfeatures = 10000
+    nfeatures = 200000
     image_features = []
 
     imagenes = []
@@ -232,27 +232,41 @@ def main():
     #     cv2.waitKey(0)
     #     cv2.destroyAllWindows()
 
+
+    # Imagen 3
     image_file, other_image_file, img, other_img, distancia = final_features[0]
     print(f"{image_file} - {other_image_file} - Distancia: {distancia}")
     H = calcularHomografia(other_img, panorama, metodo, nfeatures)
+
+    image_concatenation_direction(H, panorama.shape, other_image_file, "panorama")
+
     panorama = warp_images(panorama, other_img, H)
     # Mostrar el panorama final
     cv2.imshow("Panorama", panorama)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
+
+    # Imagen 4
     image_file, other_image_file, img, other_img, distancia = final_features[1]
     print(f"{image_file} - {other_image_file} - Distancia: {distancia}")
     H = calcularHomografia(panorama, other_img, metodo, nfeatures)
+
+    image_concatenation_direction(H, panorama.shape, other_image_file, "panorama")
+
     panorama = warp_images(other_img, panorama, H)
     # Mostrar el panorama final
     cv2.imshow("Panorama", panorama)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
+    # Imagen 5
     image_file, other_image_file, img, other_img, distancia = final_features[2]
     print(f"{image_file} - {other_image_file} - Distancia: {distancia}")
     H = calcularHomografia(other_img, panorama, metodo, nfeatures)
+
+    image_concatenation_direction(H, panorama.shape, other_image_file, "panorama")
+
     panorama = warp_images(panorama, other_img, H)
     # Mostrar el panorama final
     cv2.imshow("Panorama", panorama)
