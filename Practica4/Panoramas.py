@@ -4,6 +4,8 @@ import numpy as np
 import time
 import sys
 
+from calcularHomografia import findHomographyRANSAC
+
 ''' 
     Programa que genera el panorama a partir de una secuencia de imágenes cortadas
     tomadas desde un mismo punto rotando la cámara.
@@ -139,7 +141,7 @@ def calcularHomografia(BaseImage_kp, SecImage_kp, GoodMatches):
     PuntosImagenSec = np.float32(PuntosImagenSec)
 
     # Encontrar la matriz de homografía (matriz de transformación).
-    (MatrizHomografia, _) = cv2.findHomography(PuntosImagenSec, PuntosImagenBase, cv2.RANSAC, 4.0)
+    (MatrizHomografia, _) = findHomographyRANSAC(PuntosImagenSec, PuntosImagenBase, 4.0, 10000)
 
     return MatrizHomografia
 
