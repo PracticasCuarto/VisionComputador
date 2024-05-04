@@ -161,3 +161,5 @@ cython_debug/
 
 Practica1/Videos/*
 Practica2/Contornos/*
+Practica4/Escenas/*
+Practica4/resultados/*

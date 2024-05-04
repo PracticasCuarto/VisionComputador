@@ -31,31 +31,32 @@ def leerImagenes(folder_path):
     # Obtener la lista de archivos en el directorio y ordenarla alfabéticamente
     filenames = sorted(os.listdir(folder_path))
     for filename in filenames:
-        if filename.endswith('.jpg'):
+        if filename.endswith('.jpg') or filename.endswith('.png') or filename.endswith('.JPG'):
             img = cv2.imread(os.path.join(folder_path, filename))
-            imagenes.append(img)
+            imagenes.append((img, filename))
     return imagenes
 
 def imagenVaDerecha(imagen1, imagen2):
     # Coordenadas de los vértices de la imagen de origen
-    src_corners = np.array([[0, 0], [0, imagen1.shape[0]], [imagen1.shape[1], imagen1.shape[0]], [imagen1.shape[1], 0]], dtype=np.float32).reshape(-1, 1, 2)
+    esquinas_src = np.array([[0, 0], [0, imagen1.shape[0]], [imagen1.shape[1], imagen1.shape[0]], [imagen1.shape[1], 0]], dtype=np.float32).reshape(-1, 1, 2)
 
-    # Calcular  la homografía entre las dos imágenes
-    GoodMatches, BaseImage_kp, SecImage_kp = EncontrarMatches(imagen1, imagen2)
+    # Calcular la homografía entre las dos imágenes
+    buenos_emparejamientos, puntos_clave_imagen1, puntos_clave_imagen2 = EncontrarMatches(imagen1, imagen2)
 
     # Calcular la matriz de homografía
-    H = calcularHomografia(BaseImage_kp, SecImage_kp, GoodMatches)
+    H = calcularHomografia(puntos_clave_imagen1, puntos_clave_imagen2, buenos_emparejamientos)
 
-    # Transforma las coordenadas de los vértices de la imagen de origen a las coordenadas de la imagen de destino
-    dst_corners = cv2.perspectiveTransform(src_corners, H)
+    # Transformar las coordenadas de los vértices de la imagen de origen a las coordenadas de la imagen de destino
+    esquinas_dst = cv2.perspectiveTransform(esquinas_src, H)
 
-    # Determina si la imagen de origen se superpone a la izquierda o a la derecha de la imagen de destino
-    if dst_corners[:, 0, 0].min() < 0:  # Si alguna coordenada x es negativa, la imagen de origen se superpone a la izquierda
+    # Determinar si la imagen de origen se superpone a la izquierda o a la derecha de la imagen de destino
+    if esquinas_dst[:, 0, 0].min() < 0:  # Si alguna coordenada x es negativa, la imagen de origen se superpone a la izquierda
         # print(f"La imagen de origen se superpone a la izquierda de la imagen de destino.")
         return False
     else:
         # print(f"La imagen de origen se superpone a la derecha de la imagen de destino.")
         return True
+
 
 def OrdenarImagenes(imagenes):
     # Crear un diccionario para almacenar el número de imágenes a la izquierda de cada imagen
@@ -65,7 +66,7 @@ def OrdenarImagenes(imagenes):
     for i in range(len(imagenes)):
         for j in range(len(imagenes)):
             if i != j:  # No comparamos una imagen consigo misma
-                if imagenVaDerecha(imagenes[i], imagenes[j]):
+                if imagenVaDerecha(imagenes[i][0], imagenes[j][0]):
                     # Si la imagen j está a la derecha de la imagen i, aumentamos el contador de la imagen i
                     izquierda_count[i] += 1
 
@@ -73,28 +74,32 @@ def OrdenarImagenes(imagenes):
     sorted_indices = sorted(izquierda_count, key=lambda x: izquierda_count[x])
 
     # Ordenar la lista de imágenes según el orden determinado
-    imagenes_ordenadas = [imagenes[i] for i in sorted_indices]
-    print(f"Orden de las imágenes: {sorted_indices}")
+    imagenes_ordenadas = [imagenes[i][0] for i in sorted_indices]
+    indices_ordenados = [imagenes[i][1] for i in sorted_indices]
+    print(f"Orden de las imágenes: {indices_ordenados}")
     return imagenes_ordenadas
 
 
 # Define el orden de las imagenes devolviendo la imagen central y las listas de imagenes de la izquierda y derecha
 # Esto lo hemos hecho para que el resultado no quede distorsionado
 def dividirImagenes(imagenes):
+    print(len(imagenes))
     # Definir la mitad de la lista de imágenes
     n_mitad = len(imagenes) // 2
-
     mitad = imagenes[n_mitad]
     izquierda = []
     derecha = []
 
+
     # Definir las imágenes de la izquierda
-    for i in range(n_mitad):
+    for i in range(0, n_mitad):
         izquierda.append(imagenes[i])
+        print(f"Izquierda: ", i)
 
     # Definir las imágenes de la derecha
     for i in range(n_mitad + 1, len(imagenes)):
         derecha.append(imagenes[i])
+        print(f"Derecha: ", i)
 
     return mitad, izquierda, derecha
 
@@ -177,16 +182,12 @@ def UnirImagen(imagen_base, imagen_unir):
 
 
 def main():
-    if len(sys.argv) < 2:
-        print("No se ha proporcionado ningún parámetro.")
+    if len(sys.argv) < 3:
+        print("Ejecutar como python Panoramas.py <RutaCarpetaImagenes>, <rutaResultado>")
         return
-    metodo = sys.argv[1]
+    folder_path = sys.argv[1]
 
-    if metodo not in ['ORB', 'SIFT', 'AKAZE']:
-        print("Método no válido. Usando ORB por defecto.")
-        metodo = 'ORB'
-
-    folder_path = 'Edificio' 
+    res_path = sys.argv[2]
 
     # Leer las imágenes y definir el orden en el que se van a unir
     imagenes = leerImagenes(folder_path)
@@ -209,7 +210,7 @@ def main():
 
         Panorama = ImagenUnida.copy()
     
-    cv2.imwrite("Panorama.png", Panorama)
+    cv2.imwrite(res_path + ".png", Panorama)
 
 
 if __name__ == "__main__":
