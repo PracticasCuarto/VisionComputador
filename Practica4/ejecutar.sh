@@ -2,5 +2,5 @@
 
 # Script de ejecución del programa
 
-escena="BuildingScene"
+escena="Calle"
 python3 Panoramas.py "Escenas/$escena" "resultados/$escena"

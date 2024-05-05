@@ -30,12 +30,20 @@ def leerImagenes(folder_path):
             imagenes.append((img, filename))
     return imagenes
 
+import numpy as np
+
 def imagenVaDerecha(imagen1, imagen2):
     # Coordenadas de los vértices de la imagen de origen
     esquinas_src = np.array([[0, 0], [0, imagen1.shape[0]], [imagen1.shape[1], imagen1.shape[0]], [imagen1.shape[1], 0]], dtype=np.float32).reshape(-1, 1, 2)
 
     # Calcular la homografía entre las dos imágenes
     buenos_emparejamientos, puntos_clave_imagen1, puntos_clave_imagen2 = EncontrarMatches(imagen1, imagen2)
+
+    # Si no hay buenos emparejamientos, las imágenes no están relacionadas
+    if buenos_emparejamientos is None or len(buenos_emparejamientos) < 4:
+        # Podrías devolver False, pero usaré None para indicar que no hay relación
+        print("No se encontraron suficientes emparejamientos entre las imágenes.")
+        return None
 
     # Calcular la matriz de homografía
     H = calcularHomografia(puntos_clave_imagen1, puntos_clave_imagen2, buenos_emparejamientos)
@@ -52,6 +60,7 @@ def imagenVaDerecha(imagen1, imagen2):
         return True
 
 
+
 def OrdenarImagenes(imagenes):
     # Crear un diccionario para almacenar el número de imágenes a la izquierda de cada imagen
     izquierda_count = {i: 0 for i in range(len(imagenes))}
@@ -60,7 +69,10 @@ def OrdenarImagenes(imagenes):
     for i in range(len(imagenes)):
         for j in range(len(imagenes)):
             if i != j:  # No comparamos una imagen consigo misma
-                if imagenVaDerecha(imagenes[i][0], imagenes[j][0]):
+                derecha = imagenVaDerecha(imagenes[i][0], imagenes[j][0])
+                if derecha is None:
+                    continue
+                if derecha:
                     # Si la imagen j está a la derecha de la imagen i, aumentamos el contador de la imagen i
                     izquierda_count[i] += 1
 
@@ -70,30 +82,25 @@ def OrdenarImagenes(imagenes):
     # Ordenar la lista de imágenes según el orden determinado
     imagenes_ordenadas = [imagenes[i][0] for i in sorted_indices]
     indices_ordenados = [imagenes[i][1] for i in sorted_indices]
-    # print(f"Orden de las imágenes: {indices_ordenados}")
     return imagenes_ordenadas
 
 
 # Define el orden de las imagenes devolviendo la imagen central y las listas de imagenes de la izquierda y derecha
 # Esto lo hemos hecho para que el resultado no quede distorsionado
 def dividirImagenes(imagenes):
-    print(len(imagenes))
     # Definir la mitad de la lista de imágenes
     n_mitad = len(imagenes) // 2
     mitad = imagenes[n_mitad]
     izquierda = []
     derecha = []
 
-
     # Definir las imágenes de la izquierda
     for i in range(0, n_mitad):
         izquierda.append(imagenes[i])
-        print(f"Izquierda: ", i)
 
     # Definir las imágenes de la derecha
     for i in range(n_mitad + 1, len(imagenes)):
         derecha.append(imagenes[i])
-        print(f"Derecha: ", i)
 
     return mitad, izquierda, derecha
 
@@ -133,7 +140,8 @@ def calcularHomografia(BaseImage_kp, SecImage_kp, GoodMatches):
     PuntosImagenSec = np.float32(PuntosImagenSec)
 
     # Encontrar la matriz de homografía (matriz de transformación).
-    (MatrizHomografia, _) = calcularHomografiaRANSAC(PuntosImagenSec, PuntosImagenBase, 4.0, 100000)
+    (MatrizHomografia, _) = calcularHomografiaRANSAC(PuntosImagenSec, PuntosImagenBase, 5.0, 30000)
+    # MatrizHomografia, _ = cv2.findHomography(PuntosImagenSec, PuntosImagenBase, cv2.RANSAC, 5.0)
 
     return MatrizHomografia
 
