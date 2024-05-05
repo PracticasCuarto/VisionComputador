@@ -4,7 +4,7 @@ import numpy as np
 import time
 import sys
 
-from calcularHomografia import findHomographyRANSAC
+from calcularHomografia import calcularHomografiaRANSAC
 
 ''' 
     Programa que genera el panorama a partir de una secuencia de imágenes cortadas
@@ -19,14 +19,6 @@ from calcularHomografia import findHomographyRANSAC
     6. Crear el panorama
 
 '''
-
-# def leerImagenes(folder_path):
-#     imagenes = []
-#     for filename in os.listdir(folder_path):
-#         if filename.endswith('.jpg'):
-#             img = cv2.imread(os.path.join(folder_path, filename))
-#             imagenes.append(img)
-#     return imagenes
 
 def leerImagenes(folder_path):
     imagenes = []
@@ -78,7 +70,7 @@ def OrdenarImagenes(imagenes):
     # Ordenar la lista de imágenes según el orden determinado
     imagenes_ordenadas = [imagenes[i][0] for i in sorted_indices]
     indices_ordenados = [imagenes[i][1] for i in sorted_indices]
-    print(f"Orden de las imágenes: {indices_ordenados}")
+    # print(f"Orden de las imágenes: {indices_ordenados}")
     return imagenes_ordenadas
 
 
@@ -141,7 +133,7 @@ def calcularHomografia(BaseImage_kp, SecImage_kp, GoodMatches):
     PuntosImagenSec = np.float32(PuntosImagenSec)
 
     # Encontrar la matriz de homografía (matriz de transformación).
-    (MatrizHomografia, _) = findHomographyRANSAC(PuntosImagenSec, PuntosImagenBase, 4.0, 10000)
+    (MatrizHomografia, _) = calcularHomografiaRANSAC(PuntosImagenSec, PuntosImagenBase, 4.0, 100000)
 
     return MatrizHomografia
 
