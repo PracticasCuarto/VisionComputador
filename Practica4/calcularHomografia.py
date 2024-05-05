@@ -1,11 +1,11 @@
 import numpy as np
+import cv2
 
 def calcularHomografiaRANSAC(pts1, pts2, umbral=4.0, max_iteraciones=1000):
     assert len(pts1) == len(pts2), "Número desigual de puntos"
     assert len(pts1) >= 4, "Se necesitan al menos 4 puntos para calcular la homografía"
 
     mejores_inliers = []
-    mejor_H = None
     num_inliers = 0
 
     for _ in range(max_iteraciones):
@@ -28,8 +28,7 @@ def calcularHomografiaRANSAC(pts1, pts2, umbral=4.0, max_iteraciones=1000):
         if len(inliers) > num_inliers:
             mejores_inliers = inliers
             num_inliers = len(inliers)
-            mejor_H = H
-
+       
     # Refinar la homografía utilizando todos los inliers encontrados
     H_refinada = calcularHomografia(pts1[mejores_inliers], pts2[mejores_inliers])
 

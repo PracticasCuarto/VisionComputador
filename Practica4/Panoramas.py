@@ -140,8 +140,11 @@ def calcularHomografia(BaseImage_kp, SecImage_kp, GoodMatches):
     PuntosImagenSec = np.float32(PuntosImagenSec)
 
     # Encontrar la matriz de homografía (matriz de transformación).
-    (MatrizHomografia, _) = calcularHomografiaRANSAC(PuntosImagenSec, PuntosImagenBase, 5.0, 30000)
-    # MatrizHomografia, _ = cv2.findHomography(PuntosImagenSec, PuntosImagenBase, cv2.RANSAC, 5.0)
+    (MatrizHomografia, inliners) = calcularHomografiaRANSAC(PuntosImagenSec, PuntosImagenBase, 5.0, 30000)
+    MatrizHomografiaOCV, inlinersOCV = cv2.findHomography(PuntosImagenSec, PuntosImagenBase, cv2.RANSAC, 5.0)
+
+    # Numero de inliners encontrados por nuestra funcion
+    print(f"Nuestro método encontró {len(inliners)} y OpenCV encontró {len(inlinersOCV)} inliers de {len(GoodMatches)} puntos")
 
     return MatrizHomografia
 
@@ -194,21 +197,32 @@ def main():
     # Leer las imágenes y definir el orden en el que se van a unir
     imagenes = leerImagenes(folder_path)
 
+    print(f"Ordenando las imagenes en {folder_path} y uniendo en {res_path}")
+    tiempo1 = time.time()
     # Establecer el orden a partir de sus homografias
     imagenes = OrdenarImagenes(imagenes)
+
+    tiempo2 = time.time()
+    print(f"Tiempo de ordenación de las imágenes: {tiempo2 - tiempo1} segundos")
 
     # Dividir las imagenes en tres listas: izquierda, derecha y la central para que la union no sea distorsionada
     Panorama, izquierda, derecha = dividirImagenes(imagenes)
 
     for i in range (0, len(izquierda)):
         # Unir la imagen
+        tiempoA = time.time()
         ImagenUnida = UnirImagen(Panorama, izquierda[i])
+        tiempoB = time.time()
+        print(f"Tiempo de unión de la imagen {i}: {tiempoB - tiempoA} segundos")
 
         Panorama = ImagenUnida.copy()
 
     for i in range (0, len(derecha)):
         # Unir la imagen
+        tiempoA = time.time()
         ImagenUnida = UnirImagen(Panorama, derecha[i])
+        tiempoB = time.time()
+        print(f"Tiempo de unión de la imagen {i}: {tiempoB - tiempoA} segundos")
 
         Panorama = ImagenUnida.copy()
     
